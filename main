@@ -1,0 +1,594 @@
+//	Hwk-1-CC.cpp
+//	Cyndi Christopher
+//	Homework 1 - Roman Numeral Converter
+//	Due: 8/27/2015
+//	CS2364 - C++
+
+// PLEASE NOTE THIS WAS OUR FIRST ASSIGNMENT WITH ONE WEEK TO COMPLETE, AND WE WERE TOLD NOT TO USE CLASSES OR DEBUGGING FOR THIS PROJECT //
+
+#include "stdafx.h"
+#include <iostream>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+/////////// BEGIN FUNCTION ///////////////////
+bool isValidRoman(string s)
+{
+	const int sLength = s.length();
+	int prevValueX3 = 0, prevValueX2 = 0, prevValueX1 = 0;
+	int currValue = 0;
+	bool isValid = true;
+	
+
+	//Roman Number Arrays
+	int romanNumVal[7];
+
+	romanNumVal[0] = 1000;
+	romanNumVal[1] = 500;
+	romanNumVal[2] = 100;
+	romanNumVal[3] = 50;
+	romanNumVal[4] = 10;
+	romanNumVal[5] = 5;
+	romanNumVal[6] = 1;
+
+	char romanNumeral[7];
+
+	romanNumeral[0] = 'M';
+	romanNumeral[1] = 'D';
+	romanNumeral[2] = 'C';
+	romanNumeral[3] = 'L';
+	romanNumeral[4] = 'X';
+	romanNumeral[5] = 'V';
+	romanNumeral[6] = 'I';
+
+	//Assign each character to the romChar one at a time
+	for (int i = 0; i < sLength; i++)
+	{
+		//sets the value of the romChar to the string value at the current position in the iteration
+		char romChar = s.at(i);
+
+		//Iterates through the romanNumVal array
+		for (int i = 0; i < 7; i++)
+		{
+			//On each pass compares the array value to the romChar to see if they match
+			if (romChar == romanNumeral[i])
+			{
+				//If the characters match, displays the character and its value and breaks from the inner if..else
+				currValue = romanNumVal[i];
+				//cout << romChar << " = " << currValue << endl;
+			}//end if
+		}//end for
+
+		//After displaying the character's value, it determines whether the value is repeated from the previous value
+		//Is the numeral repeated?
+		//cout << "Current Value: " << currValue << endl;
+		//cout << "Previous Value: " << prevValueX1 << endl;
+		//cout << "Previouser Value: " << prevValueX2 << endl;
+		//cout << "Previouserer Value: " << prevValueX3 << endl;
+
+		if (currValue == prevValueX1)
+		{
+			//cout << "The number is repeated" << endl;
+
+			int intCurrValue = currValue;
+
+			//Is the numeral's value a power of 10?
+			if (intCurrValue % 10 < 1)
+			{
+				//cout << "The number is a power of 10 so it can be repeated." << endl;
+
+				//Is the number repeated more than three (3) times?
+				if (currValue == prevValueX1 && prevValueX1 == prevValueX2 && prevValueX2 == prevValueX3)
+				{
+					//cout << "The number is repeated more than three times. This is not allowed." << endl << endl;
+					isValid = false;
+					break;
+				}
+			}
+			else if (intCurrValue = 1)
+			{
+				//cout << "The value is 1 so it can be repeated." << endl;
+				//Is the number repeated more than three (3) times?
+				if (currValue == prevValueX1 && prevValueX1 == prevValueX2 && prevValueX2 == prevValueX3)
+				{
+					//cout << "The number is repeated more than three times. This is not allowed." << endl << endl;
+					isValid = false;
+					break;
+				}
+			}
+			else
+			{
+				//The test failed, so return false and break out of the iteration
+				//cout << "The number is not a power of 10 so it cannot be repeated." << endl;
+				isValid = false;
+				break;
+			}
+		}
+		else
+		{
+			//cout << "The number is not repeated so it doesn't matter if it is a power of 10." << endl;
+		}//end if...else
+
+		 //Is the preceding number smaller than the current number?
+		if (prevValueX1 < currValue)
+		{
+			//cout << "The previous number is smaller than the current number" << endl;
+
+			//if the previous value is 0 do not test the size against the previous
+			if (prevValueX1 == 0)
+			{
+				//cout << "... but it equals 0 so it doesn't need to be checked against the current value." << endl;
+			}
+			else
+			{				
+				//Is the previous smaller number repeated?
+				if (prevValueX1 == prevValueX2)
+				{
+					//cout << "... and it is repeated. This is not allowed" << endl;
+					isValid = false;
+					break;
+				}
+				else
+				{
+					//cout << "... and it is not repeated." << endl;
+					//cout << "... but it is greater than 0, so it must be checked against the current value." << endl;
+					
+					//Is the number less than 10x
+					int smallX10 = prevValueX1 * 10;
+					//cout << "The previous number multiplied by 10 = " << smallX10 << endl;
+					if (currValue <= smallX10)
+					{
+						//cout << "The current value is less than or equal to 10x the previous value." << endl;
+					}
+					else
+					{
+						//cout << "The current value greater than 10x the previous value. This is not allowed." << endl;
+						isValid = false;
+						break;
+					}
+				}
+			}
+		}
+		else
+		{
+			//cout << "The previous number is greater than or equal to the current number." << endl;
+			isValid = true;
+		}
+
+		//Reassign previous values
+		prevValueX3 = prevValueX2; 
+		
+		prevValueX2 = prevValueX1;
+		//cout << "The prevValueX2 has been assigned the value of prevValueX1 and now it is " << prevValueX2 << endl;
+		prevValueX1 = currValue;
+		//cout << "The prevValueX1 has been assigned the currValue and now it is " << prevValueX1 << endl << endl;
+		//cout << endl << endl;
+		
+
+	}//end for
+
+	//after completing all iterations returns the value
+	return isValid;
+}
+/////////// END FUNCTION /////////////////////
+
+////////// BEGIN FUNCTION ////////////////////
+bool convertRomanToDecimal(string s)
+{
+	int sLength = s.length();
+	const int maxLength = 15;
+	int prevValue = 0, currValue = 0;
+	int total = 0;
+	bool retVal = true;
+
+	//Roman Number Arrays
+	int romanNumVal[7];
+	romanNumVal[0] = 1000;
+	romanNumVal[1] = 500;
+	romanNumVal[2] = 100;
+	romanNumVal[3] = 50;
+	romanNumVal[4] = 10;
+	romanNumVal[5] = 5;
+	romanNumVal[6] = 1;
+
+	char romanNumeral[7];
+	romanNumeral[0] = 'M';
+	romanNumeral[1] = 'D';
+	romanNumeral[2] = 'C';
+	romanNumeral[3] = 'L';
+	romanNumeral[4] = 'X';
+	romanNumeral[5] = 'V';
+	romanNumeral[6] = 'I';
+
+	//If length of string is greater than maxLength cannot convert
+	if(sLength > maxLength)
+	{
+		cout << "This application can not convert a number greater than " << maxLength << endl << endl;
+		retVal = false;
+	}
+	else
+	{
+		//Create an array of characters from the s string
+		char romArray[maxLength];
+		//int romValArray[maxLength];
+
+		for(int i = (sLength-1); i >= 0; i--)
+		{
+			char romChar = s.at (i);
+			romArray[i] = romChar;
+			cout << romArray[i] << " = ";
+
+			for (int x = 0; x < 7; x++)
+			{
+				//On each pass compares the array value to the romChar to see if they match
+				if (romChar == romanNumeral[x])
+				{
+					//If the characters match assigns the value of the character to the romValArray;
+					currValue = romanNumVal[x];
+				}//end if
+			}//end for
+
+			//compare previous and current value and calculate
+			if(currValue < prevValue)
+			{
+				total = total + currValue;
+			}
+			else
+			{
+				total = total - currValue;
+			}
+
+			//Update the previous value
+			prevValue = currValue;
+			
+		}//end for
+
+	}//end if... else
+
+	//Display the total
+	cout << "Result: " << s << " = " << -(total);
+	cout << endl << endl;
+
+
+	return retVal;
+
+}
+/////////// END FUNCTION /////////////////////
+
+////////// BEGIN FUNCTION ////////////////////
+bool convertDecimalToRoman(float d)
+{
+	const int maxLength = 4;
+	int remainder = 0;
+	int num1k = 0, num100 = 0, num10 = 0, num1 = 0;
+	string romOnes = "", romTens = "", romHunds = "", romThous = "";
+	string romNumber = romThous + romHunds + romTens + romOnes;
+
+	//convert decimal to an int
+	int dec2Int = d;
+	//cout << "Decimal converted to int is " << dec2Int << endl << endl;
+
+	//convert the int to a string and get its length
+	string intString = to_string(dec2Int);
+	//cout << "Decimal as a string is " << intString << endl << endl;
+
+	//Get the length of the string
+	int numLength = intString.length();
+	//cout << "I can convert that!" << endl << endl;
+
+		switch (numLength)
+		{
+			case 4: 
+			{
+				//divide the number by 1000 and get the remainder
+				num1k = dec2Int/1000;
+				remainder = dec2Int %= 1000;
+
+				if(remainder > 0)
+				{
+					num100 = remainder/100;
+					remainder = remainder %= 100;
+
+					if(remainder > 0)
+					{
+						num10 = remainder/10;
+						remainder = remainder %= 10;
+					
+						num1 = remainder;
+					}
+				}
+				else
+				{
+					num10 = 0;
+					num1 = 0;
+				}
+
+			}
+			break;
+			case 3: 
+			{
+				//divide the number by 100 and get the remainder
+				num100 = dec2Int/100;
+				remainder = dec2Int %= 100;
+
+				if(remainder > 0)
+				{
+					num10 = remainder/10;
+					remainder = remainder %= 10;
+
+					num1 = remainder;
+				}
+				else
+				{
+					num10 = 0;
+					num1 = 0;
+				}
+			}
+			break;
+			case 2:
+			{
+				//divide the number by 10 and get the remainder
+				num10 = dec2Int/10;
+				remainder = dec2Int %= 10;
+				//cout << "The remainder = " << remainder << endl;
+
+				num1 = remainder;
+
+			}
+			break;
+			case 1: 
+			{
+				num1 = dec2Int;
+			}
+			default: break;
+		}
+
+		//results
+			//Value of Thousands
+			switch(num1k)
+				{
+				case 1: romThous = "M";
+					break;
+				case 2: romThous = "MM";
+					break;
+				case 3: romThous = "MMM";
+					break;
+				default:break;
+				}
+			//Value of Hundreds
+			switch(num100)
+				{
+				case 1: romHunds = "C";
+					break;
+				case 2: romHunds = "CC";
+					break;
+				case 3: romHunds = "CCC";
+					break;
+				case 4: romHunds = "CD";
+					break;
+				case 5: romHunds = "D";
+					break;
+				case 6: romHunds = "DC";
+					break; 
+				case 7: romHunds = "DCC";
+					break;
+				case 8: romHunds = "DCCC";
+					break;
+				case 9: romHunds = "CM";
+					break;
+				default:break;
+				}
+			//Value of Tens
+			switch(num10)
+				{
+				case 1: romTens = "X";
+					break;
+				case 2: romTens = "XX";
+					break;
+				case 3: romTens = "XXX";
+					break;
+				case 4: romTens = "XL";
+					break;
+				case 5: romTens = "L";
+					break;
+				case 6: romTens = "LX";
+					break; 
+				case 7: romTens = "LXX";
+					break;
+				case 8: romTens = "LXXX";
+					break;
+				case 9: romTens = "CX";
+					break;
+				default:break;
+				}
+
+			//Value of Ones
+			switch(num1)
+				{
+				case 1: romOnes = "I";
+					break;
+				case 2: romOnes = "II";
+					break;
+				case 3: romOnes = "III";
+					break;
+				case 4: romOnes = "IV";
+					break;
+				case 5: romOnes = "V";
+					break;
+				case 6: romOnes = "VI";
+					break; 
+				case 7: romOnes = "VII";
+					break;
+				case 8: romOnes = "VIII";
+					break;
+				case 9: romOnes = "IX";
+					break;
+				default:break;
+				}
+
+			cout << endl;
+			cout << d << " = " << romThous << romHunds << romTens << romOnes << endl << endl;
+
+	return true;
+}
+/////////// END FUNCTION /////////////////////
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	int choice = 0;
+	string whatToDo[4];
+	string romanNumber = "";
+	float decimalNumber = 0.0;
+	bool result = true;
+
+	whatToDo[0] = "What would you like to do?";
+	whatToDo[1] = "(1) Convert a Roman number to a decimal";
+	whatToDo[2] = "(2) Convert a decimal to a Roman number";
+	whatToDo[3] = "(3) Exit the application";
+
+	cout << "WELCOME TO CYNDI'S ROMAN NUMBER CONVERSION CALCULATOR" << endl << endl;
+
+	while (choice == 0)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			cout << whatToDo[i] << endl << endl;
+		}
+
+		cin >> choice;
+		if(cin.fail())
+		{
+			cout << "You did not enter a number." << endl << endl;
+			cin.clear();
+			cin.ignore(256,'\n');
+			choice = 0;
+		}
+		else
+		{
+			//check the value of choice
+			if (choice < 1 || choice > 3)
+			{
+				cout << "That is not a valid selection. ";
+				choice = 0;
+			}
+			else
+			{
+			switch (choice)
+			{
+#pragma region MyRegion1
+			case 1:
+				{
+					cout << "Please enter a Roman number: ";
+					cin >> romanNumber;
+
+					//convert number to upper case and check if valid Roman number
+					transform(romanNumber.begin(), romanNumber.end(), romanNumber.begin(), ::toupper); //this code found at stackoverflow.com
+					bool badApple = romanNumber.find_first_not_of("MDCLXVI") != std::string::npos; //this code found at stackoverflow.com
+
+					//if any of the values in the string are not characters, notify the user and return false otherwise return true
+					if (badApple)
+					{
+						cout << "That is not a valid Roman number!" << endl << endl;
+						choice = 0;
+					}
+					else
+					{
+						cout << endl;
+						cout << "The characters are valid ";
+						//If the structure of the number is valid, convert the number, otherwise notify the user and restart the switch
+						result = isValidRoman(romanNumber);
+
+						if (result)
+						{
+							cout << "and the structure is correct!" << endl << endl;
+							result = convertRomanToDecimal(romanNumber); //I did not understand why we need to pass a decimal into this function
+
+							if(result)
+							{
+								choice = 0;
+							}
+							else
+							{
+								cout << "The conversion failed. I'm sorry I couldn't help you." << endl << endl;
+								choice = 0;
+							}//end if...else
+						}
+						else
+						{
+							cout << "but the structure is incorrect. Please read the instructions more carefully." << endl << endl;
+							choice = 0;
+						}//end if...else
+					}//end if...else
+				}//end case 1  
+#pragma endregion
+
+#pragma region MyRegion2
+			case 2:
+				{
+					cout << "Please note: numbers must be greater than 0 and less than or equal to 3000" << endl << endl;
+					cout << "Please enter a number: ";
+					cin >> decimalNumber;
+
+					//Test the value entered
+
+					if(cin.fail())
+					{
+						cout << "You must enter a number (e.g., 2500)" << endl << endl;
+						cin.clear();
+						cin.ignore(256,'\n');
+						choice = 0;
+					}
+					else
+					{
+						if(decimalNumber == 0)
+						{
+							cout << "The number must be greater than 0. Please read the instructions more carefully!" << endl << endl;
+							choice = 0;
+						}
+						else
+						{
+							if(decimalNumber > 3000)
+							{
+								cout << "This number cannot be larger than 3000. Please read the instructions more carefully!" << endl << endl;
+								choice = 0;
+							}
+							else
+							{
+								result = convertDecimalToRoman(decimalNumber);
+
+								if(result)
+								{
+									choice = 0;
+								}
+								else
+								{
+									cout << "The conversion failed. I'm sorry I couldn't help you." << endl << endl;
+									choice = 0;
+								}//end if...else
+							}//end if...else
+						}//end if...else
+					}
+				}  
+				break;
+#pragma endregion
+
+#pragma region MyRegion3
+			case 3:
+				{
+					cout << endl;
+					cout << "Come back soon!" << endl << endl;
+					break;
+				}  
+#pragma endregion
+
+				default: break;
+				}//end switch
+			}//end if/else
+		}//end if...else	
+	}//End while
+
+	return 0;
+}
+
